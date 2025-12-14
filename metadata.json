@@ -1,0 +1,5 @@
+{
+  "name": "Copy of AI Exam Evaluator",
+  "description": "A comprehensive AI-powered grading assistant. Upload a question paper, answer key, and student script to instantly grade exams, transcribe handwriting, and generate performance analytics.",
+  "requestFramePermissions": []
+}
