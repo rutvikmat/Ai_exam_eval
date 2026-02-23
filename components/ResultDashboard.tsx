@@ -1,6 +1,6 @@
 import React from 'react';
 import { ExamResult, GradedQuestion } from '../types';
-import { CheckCircle, XCircle, AlertCircle, FileText, TrendingUp, Award } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, FileText, TrendingUp, Award, PenTool } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 interface ResultDashboardProps {
@@ -10,6 +10,15 @@ interface ResultDashboardProps {
 }
 
 const COLORS = ['#10b981', '#ef4444', '#f59e0b']; // Green, Red, Amber
+
+const getGrade = (percentage: number) => {
+  if (percentage >= 90) return { label: 'A+', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' };
+  if (percentage >= 80) return { label: 'A', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' };
+  if (percentage >= 70) return { label: 'B', color: 'text-blue-600 bg-blue-50 border-blue-200' };
+  if (percentage >= 60) return { label: 'C', color: 'text-indigo-600 bg-indigo-50 border-indigo-200' };
+  if (percentage >= 50) return { label: 'D', color: 'text-amber-600 bg-amber-50 border-amber-200' };
+  return { label: 'F', color: 'text-red-600 bg-red-50 border-red-200' };
+};
 
 const ResultDashboard: React.FC<ResultDashboardProps> = ({ result, onReset, customAction }) => {
   
@@ -23,6 +32,8 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ result, onReset, cust
     { name: 'Partial', value: partialCount },
   ].filter(d => d.value > 0);
 
+  const grade = getGrade(result.accuracyPercentage);
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Student Info Banner if available */}
@@ -32,14 +43,19 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ result, onReset, cust
              <h2 className="text-2xl font-bold">{result.studentName || 'Student Result'}</h2>
              <p className="text-indigo-200 font-medium">USN: {result.usn || 'N/A'}</p>
           </div>
-          <div className="mt-4 md:mt-0 px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm">
-             <span className="text-sm text-indigo-100">Evaluated on {result.timestamp ? new Date(result.timestamp).toLocaleDateString() : 'Just now'}</span>
+          <div className="mt-4 md:mt-0 flex items-center space-x-4">
+             <div className={`px-4 py-2 rounded-lg font-bold text-lg ${grade.color.replace('text-', 'text-white/90 ').replace('bg-', 'bg-white/10 ').replace('border-', '')}`}>
+               Grade: {grade.label}
+             </div>
+             <div className="px-4 py-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                <span className="text-sm text-indigo-100">Evaluated on {result.timestamp ? new Date(result.timestamp).toLocaleDateString() : 'Just now'}</span>
+             </div>
           </div>
         </div>
       )}
 
       {/* Top Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
           <div className="flex items-center space-x-3 mb-2">
             <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
@@ -67,6 +83,18 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ result, onReset, cust
 
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
           <div className="flex items-center space-x-3 mb-2">
+            <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
+              <Award className="w-6 h-6" />
+            </div>
+            <h3 className="text-slate-500 font-medium text-sm">Final Grade</h3>
+          </div>
+          <div className="flex items-baseline space-x-2">
+            <span className={`text-3xl font-bold ${grade.color.split(' ')[0]}`}>{grade.label}</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <div className="flex items-center space-x-3 mb-2">
             <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
               <FileText className="w-6 h-6" />
             </div>
@@ -81,9 +109,9 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ result, onReset, cust
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Chart Section */}
-        <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center">
-            <h3 className="text-lg font-semibold text-slate-800 mb-4 self-start">Performance Split</h3>
-            <div className="w-full h-64">
+        <div className="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">Performance Split</h3>
+            <div className="w-full h-64 relative min-h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -110,7 +138,7 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ result, onReset, cust
         {/* Detailed List Section */}
         <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-            <h3 className="text-lg font-semibold text-slate-800">Detailed Evaluation</h3>
+            <h3 className="text-lg font-semibold text-slate-800">Detailed Evaluation & Transcription</h3>
             <p className="text-sm text-slate-500 mt-1">{result.summary}</p>
           </div>
           <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
@@ -135,11 +163,14 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ result, onReset, cust
 
                 <div className="ml-11 space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-3 bg-slate-50 rounded-lg">
-                      <p className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Student Answer</p>
-                      <p className="text-sm text-slate-800">{q.studentAnswer}</p>
+                    <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                      <div className="flex items-center mb-2">
+                        <PenTool className="w-3 h-3 text-slate-400 mr-1" />
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Transcribed Answer</p>
+                      </div>
+                      <p className="text-sm text-slate-800 font-medium">{q.studentAnswer}</p>
                     </div>
-                    <div className="p-3 bg-blue-50/50 rounded-lg">
+                    <div className="p-3 bg-blue-50/50 rounded-lg border border-blue-100">
                       <p className="text-xs font-semibold text-blue-400 mb-1 uppercase tracking-wider">Correct Answer (Key)</p>
                       <p className="text-sm text-slate-800">{q.correctAnswer}</p>
                     </div>

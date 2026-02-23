@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, X, FileText } from 'lucide-react';
+import { Upload, X, FileText, Image as ImageIcon } from 'lucide-react';
 import { FileData } from '../types';
 import { fileToBase64, createPreviewUrl } from '../services/fileUtils';
 
@@ -19,7 +19,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ label, description, fileDat
       try {
         const base64 = await fileToBase64(file);
         const previewUrl = createPreviewUrl(file);
-        onFileChange({ file, base64, previewUrl });
+        onFileChange({ 
+          file, 
+          base64, 
+          previewUrl,
+          mimeType: file.type 
+        });
       } catch (err) {
         console.error("Error processing file", err);
       }
@@ -42,6 +47,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ label, description, fileDat
     emerald: "text-emerald-500",
   };
 
+  const isPdf = fileData?.mimeType === 'application/pdf';
+
   return (
     <div className="w-full">
       <label className="block text-sm font-medium text-slate-700 mb-2">{label}</label>
@@ -50,20 +57,24 @@ const FileUploader: React.FC<FileUploaderProps> = ({ label, description, fileDat
         <div className={`relative border-2 border-dashed rounded-xl p-6 transition-all duration-200 ${colorClasses[color]} flex flex-col items-center justify-center text-center cursor-pointer group`}>
           <input 
             type="file" 
-            accept="image/*" 
+            accept="image/*,application/pdf" 
             onChange={handleFileSelect} 
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
           <div className={`p-3 rounded-full bg-white shadow-sm mb-3 group-hover:scale-110 transition-transform`}>
             <Upload className={`w-6 h-6 ${iconColors[color]}`} />
           </div>
-          <p className="font-semibold text-sm">Click to upload or drag and drop</p>
+          <p className="font-semibold text-sm">Click to upload (PDF/Image)</p>
           <p className="text-xs opacity-70 mt-1">{description}</p>
         </div>
       ) : (
         <div className="relative rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-white flex items-center p-3">
-          <div className="w-12 h-12 flex-shrink-0 bg-slate-100 rounded-lg overflow-hidden mr-4">
-             <img src={fileData.previewUrl} alt="Preview" className="w-full h-full object-cover" />
+          <div className="w-12 h-12 flex-shrink-0 bg-slate-100 rounded-lg overflow-hidden mr-4 flex items-center justify-center">
+             {isPdf ? (
+               <FileText className="w-6 h-6 text-red-500" />
+             ) : (
+               <img src={fileData.previewUrl} alt="Preview" className="w-full h-full object-cover" />
+             )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-slate-900 truncate">{fileData.file.name}</p>

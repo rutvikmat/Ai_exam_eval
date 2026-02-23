@@ -10,8 +10,18 @@ export interface GradedQuestion {
 }
 
 export interface ExamResult {
+  // Student Details
   studentName?: string;
   usn?: string;
+  
+  // Exam Context (Database Keys)
+  className?: string;     // e.g., "CSE-A"
+  semester?: string;      // e.g., "5"
+  subjectCode?: string;   // e.g., "CS501"
+  examName?: string;      // e.g., "Mid-Term 1"
+  teacherName?: string;   // e.g., "Dr. Smith"
+  
+  // Results
   timestamp?: number;
   totalQuestions: number;
   totalMaxMarks: number;
@@ -32,4 +42,14 @@ export interface FileData {
   file: File;
   previewUrl: string;
   base64: string;
+  mimeType: string;
+}
+
+export interface ExamConfig {
+  teacherName: string;
+  subjectCode: string;
+  className: string;
+  semester: string;
+  examName: string;
+  totalStudents: number | '';
 }
